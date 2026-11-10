@@ -1,0 +1,1709 @@
+{
+  "info": {
+    "_postman_id": "b1e84d92-5678-4321-9876-marks-collection-001",
+    "name": "Marks API",
+    "description": "Production-level Student Marks Management API Postman Collection conforming to FAST NUCES Assignment 1 specifications.",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+  },
+  "auth": {
+    "type": "bearer",
+    "bearer": [
+      {
+        "key": "token",
+        "value": "{{token}}",
+        "type": "string"
+      }
+    ]
+  },
+  "variable": [
+    {
+      "key": "studentId",
+      "value": "1",
+      "type": "string"
+    },
+    {
+      "key": "courseId",
+      "value": "1",
+      "type": "string"
+    },
+    {
+      "key": "enrollmentId",
+      "value": "1",
+      "type": "string"
+    },
+    {
+      "key": "tempStudentId",
+      "value": "",
+      "type": "string"
+    },
+    {
+      "key": "tempCourseId",
+      "value": "",
+      "type": "string"
+    },
+    {
+      "key": "tempEnrollmentId",
+      "value": "",
+      "type": "string"
+    }
+  ],
+  "item": [
+    {
+      "name": "1. Auth",
+      "item": [
+        {
+          "name": "1.1 Teacher Login",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/api/auth/login",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "auth",
+                "login"
+              ]
+            },
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"username\": \"teacher1\",\n  \"password\": \"TeacherPassword123!\"\n}"
+            },
+            "auth": {
+              "type": "noauth"
+            }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('Status code is 200 OK', function () { pm.response.to.have.status(200); });",
+                  "var json = pm.response.json();",
+                  "pm.test('Token returned and role is Teacher', function () {",
+                  "    pm.expect(json.token).to.be.a('string').and.not.empty;",
+                  "    pm.expect(json.role).to.eql('Teacher');",
+                  "    pm.environment.set('token', json.token);",
+                  "    pm.collectionVariables.set('token', json.token);",
+                  "});"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "1.2 Student Login",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/api/auth/login",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "auth",
+                "login"
+              ]
+            },
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"username\": \"student1\",\n  \"password\": \"StudentPassword123!\"\n}"
+            },
+            "auth": {
+              "type": "noauth"
+            }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('Status code is 200 OK', function () { pm.response.to.have.status(200); });",
+                  "var json = pm.response.json();",
+                  "pm.test('Student token returned and role is Student', function () {",
+                  "    pm.expect(json.token).to.be.a('string').and.not.empty;",
+                  "    pm.expect(json.role).to.eql('Student');",
+                  "    pm.environment.set('studentToken', json.token);",
+                  "});"
+                ]
+              }
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "name": "2. Students",
+      "item": [
+        {
+          "name": "2.1 Get Students Paginated",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/api/students?page=1&pageSize=10",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "students"
+              ],
+              "query": [
+                {
+                  "key": "page",
+                  "value": "1"
+                },
+                {
+                  "key": "pageSize",
+                  "value": "10"
+                }
+              ]
+            }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('Status code is 200 OK', function () { pm.response.to.have.status(200); });",
+                  "var json = pm.response.json();",
+                  "pm.test('Returns pagination wrapper with items', function () {",
+                  "    pm.expect(json).to.have.property('items');",
+                  "    pm.expect(json.items).to.be.an('array');",
+                  "    pm.expect(json.totalCount).to.be.at.least(2);",
+                  "});"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "2.2 Create Student",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/api/students",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "students"
+              ]
+            },
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"registrationNo\": \"CS-POSTMAN-01\",\n  \"fullName\": \"Postman Test Student\",\n  \"email\": \"postman.student@example.com\"\n}"
+            }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('Status code is 201 Created', function () { pm.response.to.have.status(201); });",
+                  "pm.test('Location header is present', function () { pm.response.to.have.header('Location'); });",
+                  "var json = pm.response.json();",
+                  "pm.test('Student ID returned and saved', function () {",
+                  "    pm.expect(json.id).to.be.a('number');",
+                  "    pm.expect(json.registrationNo).to.eql('CS-POSTMAN-01');",
+                  "    pm.collectionVariables.set('tempStudentId', json.id);",
+                  "});"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "2.3 Get Student by ID",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/api/students/{{tempStudentId}}",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "students",
+                "{{tempStudentId}}"
+              ]
+            }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('Status code is 200 OK', function () { pm.response.to.have.status(200); });",
+                  "var json = pm.response.json();",
+                  "pm.test('Matches created student data', function () {",
+                  "    pm.expect(json.fullName).to.eql('Postman Test Student');",
+                  "    pm.expect(json.email).to.eql('postman.student@example.com');",
+                  "});"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "2.4 Update Student",
+          "request": {
+            "method": "PUT",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/api/students/{{tempStudentId}}",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "students",
+                "{{tempStudentId}}"
+              ]
+            },
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"registrationNo\": \"CS-POSTMAN-01\",\n  \"fullName\": \"Updated Postman Student\",\n  \"email\": \"postman.updated@example.com\"\n}"
+            }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('Status code is 200 OK', function () { pm.response.to.have.status(200); });",
+                  "var json = pm.response.json();",
+                  "pm.test('Updated full name returned', function () {",
+                  "    pm.expect(json.fullName).to.eql('Updated Postman Student');",
+                  "    pm.expect(json.email).to.eql('postman.updated@example.com');",
+                  "});"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "2.5 Get Students with Search",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/api/students?search=Updated",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "students"
+              ],
+              "query": [
+                {
+                  "key": "search",
+                  "value": "Updated"
+                }
+              ]
+            }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('Status code is 200 OK', function () { pm.response.to.have.status(200); });",
+                  "var json = pm.response.json();",
+                  "pm.test('Search returns matching items', function () {",
+                  "    pm.expect(json.items.length).to.be.at.least(1);",
+                  "    pm.expect(json.items[0].fullName).to.include('Updated');",
+                  "});"
+                ]
+              }
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "name": "3. Courses",
+      "item": [
+        {
+          "name": "3.1 Get Courses Paginated",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/api/courses?page=1&pageSize=10",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "courses"
+              ],
+              "query": [
+                {
+                  "key": "page",
+                  "value": "1"
+                },
+                {
+                  "key": "pageSize",
+                  "value": "10"
+                }
+              ]
+            }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('Status code is 200 OK', function () { pm.response.to.have.status(200); });",
+                  "var json = pm.response.json();",
+                  "pm.test('Returns courses list', function () {",
+                  "    pm.expect(json.items).to.be.an('array');",
+                  "    pm.expect(json.totalCount).to.be.at.least(3);",
+                  "});"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "3.2 Create Course",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/api/courses",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "courses"
+              ]
+            },
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"code\": \"CS999\",\n  \"title\": \"Cloud Computing\",\n  \"creditHours\": 3\n}"
+            }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('Status code is 201 Created', function () { pm.response.to.have.status(201); });",
+                  "pm.test('Location header present', function () { pm.response.to.have.header('Location'); });",
+                  "var json = pm.response.json();",
+                  "pm.test('Course ID returned and saved', function () {",
+                  "    pm.expect(json.id).to.be.a('number');",
+                  "    pm.expect(json.code).to.eql('CS999');",
+                  "    pm.collectionVariables.set('tempCourseId', json.id);",
+                  "});"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "3.3 Get Course by ID",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/api/courses/{{tempCourseId}}",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "courses",
+                "{{tempCourseId}}"
+              ]
+            }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('Status code is 200 OK', function () { pm.response.to.have.status(200); });",
+                  "var json = pm.response.json();",
+                  "pm.test('Course properties verified', function () {",
+                  "    pm.expect(json.code).to.eql('CS999');",
+                  "    pm.expect(json.creditHours).to.eql(3);",
+                  "});"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "3.4 Update Course",
+          "request": {
+            "method": "PUT",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/api/courses/{{tempCourseId}}",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "courses",
+                "{{tempCourseId}}"
+              ]
+            },
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"code\": \"CS999\",\n  \"title\": \"Advanced Cloud Architecture\",\n  \"creditHours\": 4\n}"
+            }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('Status code is 200 OK', function () { pm.response.to.have.status(200); });",
+                  "var json = pm.response.json();",
+                  "pm.test('Updated course verified', function () {",
+                  "    pm.expect(json.title).to.eql('Advanced Cloud Architecture');",
+                  "    pm.expect(json.creditHours).to.eql(4);",
+                  "});"
+                ]
+              }
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "name": "4. Enrollments and Marks",
+      "item": [
+        {
+          "name": "4.1 Enroll Student in Course",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/api/courses/{{tempCourseId}}/enrollments",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "courses",
+                "{{tempCourseId}}",
+                "enrollments"
+              ]
+            },
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"studentId\": 1\n}"
+            }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('Status code is 201 Created', function () { pm.response.to.have.status(201); });",
+                  "var json = pm.response.json();",
+                  "pm.test('Enrollment created and ID stored', function () {",
+                  "    pm.expect(json.id).to.be.a('number');",
+                  "    pm.expect(json.mark).to.be.null;",
+                  "    pm.collectionVariables.set('tempEnrollmentId', json.id);",
+                  "});"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "4.2 Get Course Enrollments",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/api/courses/{{tempCourseId}}/enrollments",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "courses",
+                "{{tempCourseId}}",
+                "enrollments"
+              ]
+            }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('Status code is 200 OK', function () { pm.response.to.have.status(200); });",
+                  "var json = pm.response.json();",
+                  "pm.test('Enrollment found in course list', function () {",
+                  "    pm.expect(json.items).to.be.an('array');",
+                  "    pm.expect(json.totalCount).to.be.at.least(1);",
+                  "});"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "4.3 Record Mark for Enrollment",
+          "request": {
+            "method": "PUT",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/api/enrollments/{{tempEnrollmentId}}/mark",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "enrollments",
+                "{{tempEnrollmentId}}",
+                "mark"
+              ]
+            },
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"mark\": 85\n}"
+            }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('Status code is 200 OK', function () { pm.response.to.have.status(200); });",
+                  "var json = pm.response.json();",
+                  "pm.test('Mark updated to 85', function () {",
+                  "    pm.expect(json.mark).to.eql(85);",
+                  "});"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "4.4 Update Mark to 95",
+          "request": {
+            "method": "PUT",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/api/enrollments/{{tempEnrollmentId}}/mark",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "enrollments",
+                "{{tempEnrollmentId}}",
+                "mark"
+              ]
+            },
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"mark\": 95\n}"
+            }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('Status code is 200 OK', function () { pm.response.to.have.status(200); });",
+                  "var json = pm.response.json();",
+                  "pm.test('Mark updated to 95', function () {",
+                  "    pm.expect(json.mark).to.eql(95);",
+                  "});"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "4.5 Delete Enrollment",
+          "request": {
+            "method": "DELETE",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/api/enrollments/{{tempEnrollmentId}}",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "enrollments",
+                "{{tempEnrollmentId}}"
+              ]
+            }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('Status code is 204 No Content', function () { pm.response.to.have.status(204); });",
+                  "pm.test('Response body is empty', function () { pm.expect(pm.response.text()).to.be.empty; });"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "4.6 Clean Up Temporary Student",
+          "request": {
+            "method": "DELETE",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/api/students/{{tempStudentId}}",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "students",
+                "{{tempStudentId}}"
+              ]
+            }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('Status code is 204 No Content', function () { pm.response.to.have.status(204); });",
+                  "pm.test('Response body is empty', function () { pm.expect(pm.response.text()).to.be.empty; });"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "4.7 Clean Up Temporary Course",
+          "request": {
+            "method": "DELETE",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/api/courses/{{tempCourseId}}",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "courses",
+                "{{tempCourseId}}"
+              ]
+            }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('Status code is 204 No Content', function () { pm.response.to.have.status(204); });",
+                  "pm.test('Response body is empty', function () { pm.expect(pm.response.text()).to.be.empty; });"
+                ]
+              }
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "name": "5. Reports",
+      "item": [
+        {
+          "name": "5.1 Get Course CS401 Statistics",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/api/courses/1/stats",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "courses",
+                "1",
+                "stats"
+              ]
+            }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('Status code is 200 OK', function () { pm.response.to.have.status(200); });",
+                  "var json = pm.response.json();",
+                  "pm.test('CS401 stats correctly calculated', function () {",
+                  "    pm.expect(json.courseCode).to.eql('CS401');",
+                  "    pm.expect(json.average).to.eql(75.0);",
+                  "    pm.expect(json.passed).to.eql(2);",
+                  "});"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "5.2 Get Student 1 Transcript",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/api/students/1/transcript",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "students",
+                "1",
+                "transcript"
+              ]
+            }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('Status code is 200 OK', function () { pm.response.to.have.status(200); });",
+                  "var json = pm.response.json();",
+                  "pm.test('Weighted average matches spec example (72.0)', function () {",
+                  "    pm.expect(json.registrationNo).to.eql('CS-2022-001');",
+                  "    pm.expect(json.weightedAverage).to.eql(72.0);",
+                  "    pm.expect(json.courses).to.be.an('array');",
+                  "});"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "5.3 Student Reads Own Transcript",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{studentToken}}"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/api/students/1/transcript",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "students",
+                "1",
+                "transcript"
+              ]
+            }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('Status code is 200 OK', function () { pm.response.to.have.status(200); });",
+                  "var json = pm.response.json();",
+                  "pm.test('Student can read their own transcript', function () {",
+                  "    pm.expect(json.studentId).to.eql(1);",
+                  "    pm.expect(json.fullName).to.eql('Ali Raza');",
+                  "});"
+                ]
+              }
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "name": "6. Health",
+      "item": [
+        {
+          "name": "6.1 Health Check (No Auth)",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/health",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "health"
+              ]
+            },
+            "auth": {
+              "type": "noauth"
+            }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('Status code is 200 OK', function () { pm.response.to.have.status(200); });",
+                  "var json = pm.response.json();",
+                  "pm.test('System health reports Healthy', function () {",
+                  "    pm.expect(json.status).to.eql('Healthy');",
+                  "    pm.expect(json.entries).to.be.an('array');",
+                  "});"
+                ]
+              }
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "name": "7. Negative Tests",
+      "item": [
+        {
+          "name": "7.1 Empty Username on Login (400)",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/api/auth/login",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "auth",
+                "login"
+              ]
+            },
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"username\": \"\",\n  \"password\": \"somePassword\"\n}"
+            },
+            "auth": {
+              "type": "noauth"
+            }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('Status code is 400 Bad Request', function () { pm.response.to.have.status(400); });",
+                  "var json = pm.response.json();",
+                  "pm.test('Validation error object returned', function () {",
+                  "    pm.expect(json.status).to.eql(400);",
+                  "    pm.expect(json.errors).to.have.property('username');",
+                  "});"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "7.2 Invalid Password on Login (401)",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/api/auth/login",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "auth",
+                "login"
+              ]
+            },
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"username\": \"teacher1\",\n  \"password\": \"WrongPassword999!\"\n}"
+            },
+            "auth": {
+              "type": "noauth"
+            }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('Status code is 401 Unauthorized', function () { pm.response.to.have.status(401); });",
+                  "var json = pm.response.json();",
+                  "pm.test('Unauthorized error message returned', function () {",
+                  "    pm.expect(json.status).to.eql(401);",
+                  "    pm.expect(json.title).to.eql('Unauthorized');",
+                  "});"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "7.3 Create Student - Empty Name (400)",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/api/students",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "students"
+              ]
+            },
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"registrationNo\": \"CS-VAL-01\",\n  \"fullName\": \"\",\n  \"email\": \"val@example.com\"\n}"
+            }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('Status code is 400 Bad Request', function () { pm.response.to.have.status(400); });",
+                  "var json = pm.response.json();",
+                  "pm.test('Validation error specifies fullName', function () {",
+                  "    pm.expect(json.errors).to.have.property('fullName');",
+                  "});"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "7.4 Create Student - Invalid Email (400)",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/api/students",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "students"
+              ]
+            },
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"registrationNo\": \"CS-VAL-02\",\n  \"fullName\": \"Valid Name\",\n  \"email\": \"not-an-email\"\n}"
+            }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('Status code is 400 Bad Request', function () { pm.response.to.have.status(400); });",
+                  "var json = pm.response.json();",
+                  "pm.test('Validation error specifies email', function () {",
+                  "    pm.expect(json.errors).to.have.property('email');",
+                  "});"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "7.5 Create Course - Credit Hours Exceeds 4 (400)",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/api/courses",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "courses"
+              ]
+            },
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"code\": \"CS500\",\n  \"title\": \"Invalid Credits\",\n  \"creditHours\": 6\n}"
+            }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('Status code is 400 Bad Request', function () { pm.response.to.have.status(400); });",
+                  "var json = pm.response.json();",
+                  "pm.test('Validation error specifies creditHours', function () {",
+                  "    pm.expect(json.errors).to.have.property('creditHours');",
+                  "});"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "7.6 Record Mark - Exceeds 100 (400)",
+          "request": {
+            "method": "PUT",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/api/enrollments/1/mark",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "enrollments",
+                "1",
+                "mark"
+              ]
+            },
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"mark\": 105\n}"
+            }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('Status code is 400 Bad Request', function () { pm.response.to.have.status(400); });",
+                  "var json = pm.response.json();",
+                  "pm.test('Validation error specifies mark', function () {",
+                  "    pm.expect(json.errors).to.have.property('mark');",
+                  "});"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "7.7 Record Mark - Negative Mark (400)",
+          "request": {
+            "method": "PUT",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/api/enrollments/1/mark",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "enrollments",
+                "1",
+                "mark"
+              ]
+            },
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"mark\": -5\n}"
+            }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('Status code is 400 Bad Request', function () { pm.response.to.have.status(400); });",
+                  "var json = pm.response.json();",
+                  "pm.test('Validation error specifies mark', function () {",
+                  "    pm.expect(json.errors).to.have.property('mark');",
+                  "});"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "7.8 Request Without Bearer Token (401)",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/api/students",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "students"
+              ]
+            },
+            "auth": {
+              "type": "noauth"
+            }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('Status code is 401 Unauthorized', function () { pm.response.to.have.status(401); });",
+                  "pm.test('Rejects request without auth', function () { pm.expect(pm.response.code).to.eql(401); });"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "7.9 Student Accessing Teacher Endpoint (403)",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{studentToken}}"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/api/students",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "students"
+              ]
+            }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('Status code is 403 Forbidden', function () { pm.response.to.have.status(403); });",
+                  "pm.test('Student blocked from teacher endpoint', function () { pm.expect(pm.response.code).to.eql(403); });"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "7.10 Student Accessing Another Student Record (403)",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{studentToken}}"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/api/students/2",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "students",
+                "2"
+              ]
+            }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('Status code is 403 Forbidden', function () { pm.response.to.have.status(403); });",
+                  "var json = pm.response.json();",
+                  "pm.test('Ownership failure detail returned', function () {",
+                  "    pm.expect(json.status).to.eql(403);",
+                  "    pm.expect(json.detail).to.include('own student record');",
+                  "});"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "7.11 Student Accessing Another Student Transcript (403)",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{studentToken}}"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/api/students/2/transcript",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "students",
+                "2",
+                "transcript"
+              ]
+            }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('Status code is 403 Forbidden', function () { pm.response.to.have.status(403); });",
+                  "var json = pm.response.json();",
+                  "pm.test('Ownership transcript error returned', function () {",
+                  "    pm.expect(json.status).to.eql(403);",
+                  "    pm.expect(json.detail).to.include('own transcript');",
+                  "});"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "7.12 Get Student with Unknown ID (404)",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/api/students/999999",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "students",
+                "999999"
+              ]
+            }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('Status code is 404 Not Found', function () { pm.response.to.have.status(404); });",
+                  "var json = pm.response.json();",
+                  "pm.test('Not Found problem details returned', function () {",
+                  "    pm.expect(json.status).to.eql(404);",
+                  "    pm.expect(json.title).to.eql('Not Found');",
+                  "});"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "7.13 Duplicate Student Registration (409)",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/api/students",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "students"
+              ]
+            },
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"registrationNo\": \"CS-2022-001\",\n  \"fullName\": \"Duplicate Ali\",\n  \"email\": \"different.email@example.com\"\n}"
+            }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('Status code is 409 Conflict', function () { pm.response.to.have.status(409); });",
+                  "var json = pm.response.json();",
+                  "pm.test('Conflict detail identifies duplicate registration number', function () {",
+                  "    pm.expect(json.status).to.eql(409);",
+                  "    pm.expect(json.title).to.eql('Duplicate student');",
+                  "});"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "7.14 Duplicate Course Code (409)",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/api/courses",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "courses"
+              ]
+            },
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"code\": \"CS401\",\n  \"title\": \"Duplicate Course Code\",\n  \"creditHours\": 3\n}"
+            }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('Status code is 409 Conflict', function () { pm.response.to.have.status(409); });",
+                  "var json = pm.response.json();",
+                  "pm.test('Conflict identifies duplicate course code', function () {",
+                  "    pm.expect(json.status).to.eql(409);",
+                  "    pm.expect(json.title).to.eql('Duplicate course');",
+                  "});"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "7.15 Duplicate Enrollment (409)",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/api/courses/1/enrollments",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "courses",
+                "1",
+                "enrollments"
+              ]
+            },
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"studentId\": 1\n}"
+            }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('Status code is 409 Conflict', function () { pm.response.to.have.status(409); });",
+                  "var json = pm.response.json();",
+                  "pm.test('Conflict identifies duplicate enrollment', function () {",
+                  "    pm.expect(json.status).to.eql(409);",
+                  "    pm.expect(json.title).to.eql('Duplicate enrollment');",
+                  "});"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "7.16 Delete Student with Enrollments (409)",
+          "request": {
+            "method": "DELETE",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/api/students/1",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "students",
+                "1"
+              ]
+            }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('Status code is 409 Conflict', function () { pm.response.to.have.status(409); });",
+                  "var json = pm.response.json();",
+                  "pm.test('Deletion blocked because student has enrollments', function () {",
+                  "    pm.expect(json.status).to.eql(409);",
+                  "    pm.expect(json.title).to.eql('Cannot delete student');",
+                  "});"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "7.17 Delete Course with Enrollments (409)",
+          "request": {
+            "method": "DELETE",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/api/courses/1",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "courses",
+                "1"
+              ]
+            }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('Status code is 409 Conflict', function () { pm.response.to.have.status(409); });",
+                  "var json = pm.response.json();",
+                  "pm.test('Deletion blocked because course has enrollments', function () {",
+                  "    pm.expect(json.status).to.eql(409);",
+                  "    pm.expect(json.title).to.eql('Cannot delete course');",
+                  "});"
+                ]
+              }
+            }
+          ]
+        }
+      ]
+    }
+  ]
+}
