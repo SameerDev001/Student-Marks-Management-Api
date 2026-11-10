@@ -48,7 +48,25 @@ Ensure the following tools are installed on your machine:
 
 ## 4. Step-by-Step Setup Guide
 
-Follow these steps in order to set up and run the application from a clean clone.
+You can automate every command using either the provided **`Makefile`** (`make <target>`) or the PowerShell task runner **`.\run.ps1 <target>`**.
+
+### Available Automation Commands
+
+| Make Command | PowerShell Equivalent | Description |
+| :--- | :--- | :--- |
+| `make restore` | `.\run.ps1 restore` | Restore all NuGet dependencies |
+| `make build` | `.\run.ps1 build` | Build the API and test projects |
+| `make run` | `.\run.ps1 run` | Run the Web API on your local machine |
+| `make test` | `.\run.ps1 test` | Execute automated xUnit unit tests |
+| `make smoke-test` | `.\run.ps1 smoke-test` | Run startup smoke tests against live database |
+| `make secrets` | `.\run.ps1 secrets` | Initialize local development User Secrets |
+| `make migrate` | `.\run.ps1 migrate` | Apply EF Core migrations to PostgreSQL |
+| `make schema-export`| `.\run.ps1 schema-export` | Export schema via `pg_dump` to `db/schema.sql` |
+| `make docker-up` | `.\run.ps1 docker-up` | Run API and PostgreSQL in Docker |
+| `make docker-db` | `.\run.ps1 docker-db` | Run only PostgreSQL in Docker |
+| `make clean` | `.\run.ps1 clean` | Remove `bin/` and `obj/` build artifacts |
+
+---
 
 ### Step 1: Database & User Creation in PostgreSQL
 
