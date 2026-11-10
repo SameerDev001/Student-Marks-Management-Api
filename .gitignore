@@ -1,0 +1,43 @@
+## .NET Core / ASP.NET Core
+bin/
+obj/
+*.user
+*.userosscache
+*.sln.docstates
+_ReSharper*/
+*.suo
+.vs/
+.idea/
+.vscode/
+
+## Build results
+[Dd]ebug/
+[Rr]elease/
+x64/
+x86/
+[Aa]rms/
+[Aa]rm64/
+build/
+*.pdb
+*.opendb
+
+## Sensitive configuration / secrets
+secrets.json
+*.local.json
+.env
+
+## Postman
+.postman/
+
+## OS generated files
+Thumbs.db
+ehthumbs.db
+Desktop.ini
+$RECYCLE.BIN/
+.DS_Store
+
+## Python (used for diagram & pdf utilities)
+__pycache__/
+*.pyc
+venv/
+.venv/
